@@ -13,6 +13,7 @@
         "url": "https://github.com/gasparesganga/jquery-loading-overlay/issues"
     },
     "main": "dist/loadingoverlay.min.js",
+    "types": "./typings/loadingoverlay.d.ts",
     "keywords": [
         "ecosystem:jquery",
         "jquery-plugin",
@@ -22,6 +23,7 @@
         "overlay"
     ],
     "dependencies": {
+        "@types/jquery": "^3.5.13",
         "jquery": ">=1.7.0"
     },
     "devDependencies": {
