@@ -1,6 +1,7 @@
 /// <reference types="jquery" />
 
 interface ILoadingOverlayOptions {
+    override?: boolean;
     background?: string;
     backgroundClass?: string;
     image?: string;
@@ -42,7 +43,7 @@ interface ILoadingOverlayOptions {
     maxSize?: number;
     minSize?: number;
     direction?: string;
-    fade?: boolean;
+    fade?: [number | boolean, number | boolean];
     resizeInterval?: number;
     zIndex?: number;
 }

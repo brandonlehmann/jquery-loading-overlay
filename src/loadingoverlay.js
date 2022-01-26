@@ -18,7 +18,7 @@ LoadingOverlay - A flexible loading overlay jQuery plugin
     }
 }(function($, undefined){
     "use strict";
-    
+
     // Default Settings
     var _defaults = {
         // Background
@@ -74,7 +74,7 @@ LoadingOverlay - A flexible loading overlay jQuery plugin
         resizeInterval          : 50,
         zIndex                  : 2147483647
     };
-    
+
     // Required CSS
     var _css = {
         overlay : {
@@ -114,7 +114,7 @@ LoadingOverlay - A flexible loading overlay jQuery plugin
             "left"              : "0"
         }
     };
-    
+
     // Data Template
     var _dataTemplate = {
         "count"             : 0,
@@ -125,7 +125,7 @@ LoadingOverlay - A flexible loading overlay jQuery plugin
         "text"              : undefined,
         "progress"          : undefined
     };
-    
+
     // Whitelists
     var _whitelists = {
         animations : [
@@ -139,7 +139,7 @@ LoadingOverlay - A flexible loading overlay jQuery plugin
             "bottom"
         ]
     };
-    
+
     // Default Values
     var _defaultValues = {
         animations : {
@@ -148,73 +148,76 @@ LoadingOverlay - A flexible loading overlay jQuery plugin
         },
         fade : [400, 200]
     };
-    
-    
+
     $.LoadingOverlaySetup = function(settings){
         $.extend(true, _defaults, settings);
     };
-    
+
     $.LoadingOverlay = function(action, options){
         switch (action.toLowerCase()) {
             case "show":
                 Show("body", $.extend(true, {}, _defaults, options));
                 break;
-                
+
             case "hide":
                 Hide("body", options);
                 break;
-                
+
             case "resize":
                 Resize("body", options);
-                break;  
-                
+                break;
+
             case "text":
                 Text("body", options);
                 break;
-                
+
             case "progress":
                 Progress("body", options);
                 break;
         }
     };
-    
+
     $.fn.LoadingOverlay = function(action, options){
         switch (action.toLowerCase()) {
             case "show":
                 return this.each(function(){
                     Show(this, $.extend(true, {}, _defaults, options));
                 });
-                
+
             case "hide":
                 return this.each(function(){
                     Hide(this, options);
                 });
-                
+
              case "resize":
                 return this.each(function(){
                     Resize(this, options);
                 });
-                
+
             case "text":
                 return this.each(function(){
                     Text(this, options);
                 });
-                
+
             case "progress":
                 return this.each(function(){
                     Progress(this, options);
                 });
         }
     };
-    
-    
+
+
     function Show(container, settings){
+        if (settings.override) {
+            Hide(container, true);
+        }
+
         container               = $(container);
         settings.size           = _ParseSize(settings.size);
         settings.maxSize        = parseInt(settings.maxSize, 10) || 0;
         settings.minSize        = parseInt(settings.minSize, 10) || 0;
         settings.resizeInterval = parseInt(settings.resizeInterval, 10) || 0;
-        
+
         var overlay = _GetOverlay(container);
         var data    = _GetData(container);
         if (data === false) {
@@ -222,7 +225,7 @@ LoadingOverlay - A flexible loading overlay jQuery plugin
             data = $.extend({}, _dataTemplate);
             data.container = container;
             data.wholePage = container.is("body");
-            
+
             // Overlay
             overlay = $("<div>", {
                 "class" : "loadingoverlay"
@@ -244,7 +247,7 @@ LoadingOverlay - A flexible loading overlay jQuery plugin
                 });
             }
             if (typeof settings.zIndex !== "undefined") overlay.css("z-index", settings.zIndex);
-            
+
             // Image
             if (settings.image) {
                 if ($.isArray(settings.imageColor)) {
@@ -294,7 +297,7 @@ LoadingOverlay - A flexible loading overlay jQuery plugin
                 }
                 if (settings.imageClass) element.addClass(settings.imageClass);
             }
-            
+
             // Font Awesome
             if (settings.fontawesome) {
                 var element = _CreateElement(overlay, settings.fontawesomeOrder, settings.fontawesomeAutoResize, settings.fontawesomeResizeFactor, settings.fontawesomeAnimation)
@@ -304,13 +307,13 @@ LoadingOverlay - A flexible loading overlay jQuery plugin
                 }).appendTo(element);
                 if (settings.fontawesomeColor) element.css("color", settings.fontawesomeColor);
             }
-            
+
             // Custom
             if (settings.custom) {
                 var element = _CreateElement(overlay, settings.customOrder, settings.customAutoResize, settings.customResizeFactor, settings.customAnimation)
                     .append(settings.custom);
             }
-            
+
             // Text
             if (settings.text) {
                 data.text = _CreateElement(overlay, settings.textOrder, settings.textAutoResize, settings.textResizeFactor, settings.textAnimation)
@@ -322,7 +325,7 @@ LoadingOverlay - A flexible loading overlay jQuery plugin
                     data.text.css("color", settings.textColor);
                 }
             }
-            
+
             // Progress
             if (settings.progress) {
                 var element = _CreateElement(overlay, settings.progressOrder, settings.progressAutoResize, settings.progressResizeFactor, false)
@@ -362,9 +365,9 @@ LoadingOverlay - A flexible loading overlay jQuery plugin
                     data.progress.bar.addClass(settings.progressClass);
                 } else if (settings.progressColor) {
                     data.progress.bar.css("background", settings.progressColor);
-                } 
+                }
             }
-            
+
             // Fade
             if (!settings.fade) {
                 settings.fade = [0, 0];
@@ -376,16 +379,16 @@ LoadingOverlay - A flexible loading overlay jQuery plugin
                 settings.fade = [settings.fade[0], settings.fade[0]];
             }
             settings.fade = [parseInt(settings.fade[0], 10), parseInt(settings.fade[1], 10)]
-            
-            
+
+
             // Save settings
             data.settings = settings;
             // Save data
             overlay.data("loadingoverlay_data", data);
             // Save reference to overlay
             container.data("loadingoverlay", overlay);
-            
-            
+
+
             // Resize
             overlay
                 .fadeTo(0, 0.01)
@@ -396,19 +399,19 @@ LoadingOverlay - A flexible loading overlay jQuery plugin
                     _IntervalResize(container, false);
                 }, settings.resizeInterval);
             }
-            
+
             // Show LoadingOverlay
             overlay.fadeTo(settings.fade[0], 1);
         }
         data.count++;
     }
-    
+
     function Hide(container, force){
         container   = $(container);
         var overlay = _GetOverlay(container);
         var data    = _GetData(container);
         if (data === false) return;
-        
+
         data.count--;
         if (force || data.count <= 0) {
             overlay.animate({
@@ -420,16 +423,16 @@ LoadingOverlay - A flexible loading overlay jQuery plugin
             });
         }
     }
-    
+
     function Resize(container){
         _IntervalResize($(container), true);
     }
-    
+
     function Text(container, value){
         container   = $(container);
         var data    = _GetData(container);
         if (data === false || !data.text) return;
-        
+
         if (value === false) {
             data.text.hide();
         } else {
@@ -438,12 +441,12 @@ LoadingOverlay - A flexible loading overlay jQuery plugin
                     .text(value);
         }
     }
-    
+
     function Progress(container, value){
         container   = $(container);
         var data    = _GetData(container);
         if (data === false || !data.progress) return;
-        
+
         if (value === false) {
             data.progress.bar.hide();
         } else {
@@ -457,17 +460,17 @@ LoadingOverlay - A flexible loading overlay jQuery plugin
                     }, data.progress.speed);
         }
     }
-    
-    
+
+
     function _IntervalResize(container, force){
         var overlay = _GetOverlay(container);
         var data    = _GetData(container);
         if (data === false) return;
-        
+
         // Overlay
         if (!data.wholePage) {
             var isFixed = container.css("position") === "fixed";
-            var pos     = isFixed ? container[0].getBoundingClientRect() : container.offset();            
+            var pos     = isFixed ? container[0].getBoundingClientRect() : container.offset();
             overlay.css({
                 "position"  : isFixed ? "fixed" : "absolute",
                 "top"       : pos.top + parseInt(container.css("border-top-width"), 10),
@@ -476,7 +479,7 @@ LoadingOverlay - A flexible loading overlay jQuery plugin
                 "height"    : container.innerHeight()
             });
         }
-        
+
         // Elements
         if (data.settings.size) {
             var c    = data.wholePage ? $(window) : container;
@@ -513,12 +516,12 @@ LoadingOverlay - A flexible loading overlay jQuery plugin
             });
         }
     }
-    
-    
+
+
     function _GetOverlay(container){
         return container.data("loadingoverlay");
     }
-    
+
     function _GetData(container){
         var overlay = _GetOverlay(container);
         var data    = (typeof overlay === "undefined") ? undefined : overlay.data("loadingoverlay_data");
@@ -538,8 +541,8 @@ LoadingOverlay - A flexible loading overlay jQuery plugin
             return data;
         }
     }
-    
-    
+
+
     function _CreateElement(overlay, order, autoResize, resizeFactor, animation){
         var element = $("<div>", {
             "class" : "loadingoverlay_element",
@@ -553,7 +556,7 @@ LoadingOverlay - A flexible loading overlay jQuery plugin
             "loadingoverlay_resizefactor"   : resizeFactor
         })
         .appendTo(overlay);
-        
+
         // Parse animation
         if (animation === true) animation = _defaultValues.animations.time + " " + _defaultValues.animations.name;
         if (typeof animation === "string") {
@@ -580,23 +583,23 @@ LoadingOverlay - A flexible loading overlay jQuery plugin
                 "animation-iteration-count" : "infinite"
             });
         }
-        
+
         return element;
     }
-    
+
     function _ValidateCssTime(value){
         return !isNaN(parseFloat(value)) && (value.slice(-1) === "s" || value.slice(-2) === "ms");
     }
-    
+
     function _ValidateAnimation(value){
         return _whitelists.animations.indexOf(value) > -1;
     }
-    
+
     function _ValidateProgressPosition(value){
         return _whitelists.progressPosition.indexOf(value) > -1;
     }
-    
-    
+
+
     function _ParseSize(value){
         if (!value || value < 0) {
             return false;
@@ -623,11 +626,11 @@ LoadingOverlay - A flexible loading overlay jQuery plugin
                 fixed   : false,
                 units   : "px",
                 value   : parseFloat(value)
-            }; 
+            };
         }
     }
-    
-    
+
+
     $(function(){
         $("head").append([
             "<style>",
@@ -643,7 +646,7 @@ LoadingOverlay - A flexible loading overlay jQuery plugin
                             "transform : rotate(360deg);",
                   "}",
                 "}",
-                
+
                 "@-webkit-keyframes loadingoverlay_animation__rotate_left {",
                   "to {",
                     "-webkit-transform : rotate(-360deg);",
@@ -656,7 +659,7 @@ LoadingOverlay - A flexible loading overlay jQuery plugin
                             "transform : rotate(-360deg);",
                   "}",
                 "}",
-                
+
                 "@-webkit-keyframes loadingoverlay_animation__fadein {",
                   "0% {",
                             "opacity   : 0;",
@@ -687,7 +690,7 @@ LoadingOverlay - A flexible loading overlay jQuery plugin
                             "transform : scale(1, 1);",
                   "}",
                 "}",
-                
+
                 "@-webkit-keyframes loadingoverlay_animation__pulse {",
                   "0% {",
                     "-webkit-transform : scale(0, 0);",
@@ -719,5 +722,5 @@ LoadingOverlay - A flexible loading overlay jQuery plugin
             "</style>"
         ].join(" "));
     });
-    
+
 }));
